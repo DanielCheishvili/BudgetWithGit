@@ -24,7 +24,7 @@ namespace Budget
             string cs = $"Data Source={path}; Foreign Keys=1";
             dbConnection = new SQLiteConnection(cs);
             dbConnection.Open();
-            Categories category = new Categories();
+            //Categories category = new Categories();
             
         }
         public static void openExistingDatabase(String path)
@@ -33,12 +33,7 @@ namespace Budget
             dbConnection = new SQLiteConnection(cs);
             dbConnection.Open();
 
-            Categories categories = new Categories(dbConnection, true);
-            string descr = "New Category";
-            Category.CategoryType type = Category.CategoryType.Income;
-            categories.Add(descr,type);
-
- 
+            
         }
     }
 }

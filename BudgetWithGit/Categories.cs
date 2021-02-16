@@ -32,6 +32,7 @@ namespace Budget
         private List<Category> _Cats = new List<Category>();
         private string _FileName;
         private string _DirName;
+        private SQLiteConnection dbConnection;
 
 
         /// <summary>
@@ -55,15 +56,13 @@ namespace Budget
 
         public Categories(SQLiteConnection conn, bool check)
         {
+            this.dbConnection = conn;
             if(check)
             {
                 SetCategoriesToDefaults();              
             }
             //open connection
-            conn = new SQLiteConnection();
-
- 
-
+            
         }
         public Category UpdateProperties(int id, string newDescr, Category.CategoryType type)
         {
