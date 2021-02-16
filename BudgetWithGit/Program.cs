@@ -10,6 +10,7 @@ namespace BudgetWithGit
     {
         static void Main(string[] args)
         {
+
         }
     }
 }

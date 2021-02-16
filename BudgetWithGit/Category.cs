@@ -20,7 +20,7 @@ namespace Budget
         /// <summary>
         /// Gets and sets the Id.
         /// </summary>
-        public int Id { get; set; }
+        public int Id { get; }
 
         /// <summary>
         /// Gets and sets the description.

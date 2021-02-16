@@ -55,12 +55,21 @@ namespace Budget
 
         public Categories(SQLiteConnection conn, bool check)
         {
+            if(check)
+            {
+                SetCategoriesToDefaults();              
+            }
+            //open connection
+            conn = new SQLiteConnection();
+
+ 
 
         }
         public Category UpdateProperties(int id, string newDescr, Category.CategoryType type)
         {
             Category catUpdate = GetCategoryFromId(id);
-
+            catUpdate.Description = newDescr;
+            catUpdate.Type = type;
             return catUpdate;
         }
 
