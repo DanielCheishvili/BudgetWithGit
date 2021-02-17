@@ -40,22 +40,22 @@ namespace Budget
             /// <summary>
             /// Income category.
             /// </summary>
-            Income,
+            Income = 1,
 
             /// <summary>
             /// Expense category. 
             /// </summary>
-            Expense,
+            Expense = 2,
 
             /// <summary>
             /// Credit category.
             /// </summary>
-            Credit,
+            Credit = 3,
 
             /// <summary>
             /// Saving category.
             /// </summary>
-            Savings
+            Savings = 4
         };
 
        

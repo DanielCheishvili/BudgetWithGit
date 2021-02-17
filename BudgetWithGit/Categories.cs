@@ -83,12 +83,22 @@ namespace Budget
         /// <returns>The object category</returns>
         public Category GetCategoryFromId(int i)
         {
-            Category c = _Cats.Find(x => x.Id == i);
+            /*Category c = _Cats.Find(x => x.Id == i);
             if (c == null)
             {
                 throw new Exception("Cannot find category with id " + i.ToString());
             }
-            return c;
+            return c;*/
+
+            string selectID = $"select * from categories where id = {i}";
+
+            SQLiteCommand cmd = new SQLiteCommand(selectID, this.dbConnection);
+            SQLiteDataReader rdr = cmd.ExecuteReader();
+            rdr.Read();
+            Category cat = new Category(rdr.GetInt32(0), rdr.GetString(1), (Category.CategoryType)rdr.GetInt32(2));
+            rdr.Close();
+
+            return cat; 
         }
 
         /// <summary>
@@ -161,7 +171,7 @@ namespace Budget
             _FileName = Path.GetFileName(filepath);
         }
 
-        
+
 
         /// <summary>
         /// Sets the categories to default. It resets all current cateogories if any
@@ -171,12 +181,64 @@ namespace Budget
             // ---------------------------------------------------------------
             // reset any current categories,
             // ---------------------------------------------------------------
-            _Cats.Clear();
-
+            //_Cats.Clear();
+            SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+            cmd.CommandText = "DELETE FROM categories";
+            cmd.ExecuteNonQuery();
             // ---------------------------------------------------------------
             // Add Defaults
             // ---------------------------------------------------------------
-            Add("Utilities", Category.CategoryType.Expense);
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Utilities',2)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Rent',2)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Food',2)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Entertainment',2)";         
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Education',2)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Miscellaneous',2)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Medical Expenses',2)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Vacation',2)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Credit Card', 3)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Clothes',2)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Gifts', 3)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Insurance', 3)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Transportation',3)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES (Eating Out, 3)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Savings', 3)";
+            cmd.ExecuteNonQuery();
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Income', 1)";
+            cmd.ExecuteNonQuery();
+
+
+            /*Add("Utilities", Category.CategoryType.Expense);
             Add("Rent", Category.CategoryType.Expense);
             Add("Food", Category.CategoryType.Expense);
             Add("Entertainment", Category.CategoryType.Expense);
@@ -191,7 +253,10 @@ namespace Budget
             Add("Transportation", Category.CategoryType.Expense);
             Add("Eating Out", Category.CategoryType.Expense);
             Add("Savings", Category.CategoryType.Savings);
-            Add("Income", Category.CategoryType.Income);
+            Add("Income", Category.CategoryType.Income);*/
+
+           
+            
 
         }
 
@@ -209,16 +274,25 @@ namespace Budget
         /// <param name="type">The Type of the category</param>
         public void Add(String desc, Category.CategoryType type)
         {
-            int new_num = 1;
+            /*int new_num = 1;
             if (_Cats.Count > 0)
             {
                 new_num = (from c in _Cats select c.Id).Max();
                 new_num++;
             }
-            _Cats.Add(new Category(new_num, desc, type));
-        }
+            _Cats.Add(new Category(new_num, desc, type));*/
 
-        
+            SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+
+            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES (@description, @type)";
+
+            cmd.Parameters.AddWithValue("@description", desc);
+            cmd.Parameters.AddWithValue("@type", Convert.ToInt32(type));
+
+            cmd.Prepare();
+            cmd.ExecuteNonQuery();
+
+        }
 
         /// <summary>
         /// Deletes the category from the category list.
@@ -226,10 +300,18 @@ namespace Budget
         /// <param name="Id">The id of the category</param>
         public void Delete(int Id)
         {
+            
             try
             {
-                int i = _Cats.FindIndex(x => x.Id == Id);
-                _Cats.RemoveAt(i);
+                /*int i = _Cats.FindIndex(x => x.Id == Id);
+                _Cats.RemoveAt(i);*/
+
+                SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+
+                cmd.CommandText = "DELETE FROM categories WHERE id = @Id";
+                cmd.Parameters.AddWithValue("@id", Id);
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
             }
             catch
             {
@@ -246,12 +328,25 @@ namespace Budget
         /// <returns>The list of categories</returns>
         public List<Category> List()
         {
-            List<Category> newList = new List<Category>();
+            /*List<Category> newList = new List<Category>();
             foreach (Category category in _Cats)
             {
                 newList.Add(new Category(category));
             }
+            return newList;*/
+
+            string selectCategory = "select * from categories";
+
+            SQLiteCommand cmd = new SQLiteCommand(selectCategory, this.dbConnection);
+            SQLiteDataReader rdr = cmd.ExecuteReader();
+
+            List<Category> newList = new List<Category>();
+            while (rdr.Read())
+            {
+                newList.Add(new Category(rdr.GetInt32(0),rdr.GetString(1),(Category.CategoryType)rdr.GetInt32(2)));
+            }
             return newList;
+            
         }
 
         // ====================================================================
