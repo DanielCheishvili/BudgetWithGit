@@ -56,11 +56,19 @@ namespace Budget
         public Categories(SQLiteConnection conn, bool check)
         {
 
+            if(check)
+            {
+                SetCategoriesToDefaults();
+                
+               
+            }
+            conn = new SQLiteConnection();
         }
         public Category UpdateProperties(int id, string newDescr, Category.CategoryType type)
         {
             Category catUpdate = GetCategoryFromId(id);
-
+            catUpdate.Description = newDescr;
+            catUpdate.Type = type;
             return catUpdate;
         }
 
@@ -201,13 +209,19 @@ namespace Budget
         /// <param name="type">The Type of the category</param>
         public void Add(String desc, Category.CategoryType type)
         {
-            int new_num = 1;
+            /*int new_num = 1;
             if (_Cats.Count > 0)
             {
                 new_num = (from c in _Cats select c.Id).Max();
                 new_num++;
             }
-            _Cats.Add(new Category(new_num, desc, type));
+            _Cats.Add(new Category(new_num, desc, type));*/
+
+
+
+
+
+
         }
 
         
@@ -218,7 +232,7 @@ namespace Budget
         /// <param name="Id">The id of the category</param>
         public void Delete(int Id)
         {
-            try
+            /*try
             {
                 int i = _Cats.FindIndex(x => x.Id == Id);
                 _Cats.RemoveAt(i);
@@ -226,7 +240,9 @@ namespace Budget
             catch
             {
 
-            }
+            }*/
+
+
             
         }
 

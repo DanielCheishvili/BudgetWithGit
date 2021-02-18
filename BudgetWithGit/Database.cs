@@ -18,6 +18,7 @@ namespace Budget
         public Database(String path)
         {
 
+
         }
         public static void newDatabase(String path)
         {
