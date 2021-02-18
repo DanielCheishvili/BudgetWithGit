@@ -188,57 +188,7 @@ namespace Budget
             // ---------------------------------------------------------------
             // Add Defaults
             // ---------------------------------------------------------------
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Utilities',2)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Rent',2)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Food',2)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Entertainment',2)";         
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Education',2)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Miscellaneous',2)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Medical Expenses',2)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Vacation',2)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Credit Card', 3)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Clothes',2)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Gifts', 3)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Insurance', 3)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Transportation',3)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES (Eating Out, 3)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Savings', 3)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES ('Income', 1)";
-            cmd.ExecuteNonQuery();
-
-
-            /*Add("Utilities", Category.CategoryType.Expense);
+            Add("Utilities", Category.CategoryType.Expense);
             Add("Rent", Category.CategoryType.Expense);
             Add("Food", Category.CategoryType.Expense);
             Add("Entertainment", Category.CategoryType.Expense);
@@ -253,10 +203,10 @@ namespace Budget
             Add("Transportation", Category.CategoryType.Expense);
             Add("Eating Out", Category.CategoryType.Expense);
             Add("Savings", Category.CategoryType.Savings);
-            Add("Income", Category.CategoryType.Income);*/
+            Add("Income", Category.CategoryType.Income);
 
-           
-            
+
+
 
         }
 
@@ -274,8 +224,8 @@ namespace Budget
         /// <param name="type">The Type of the category</param>
         public void Add(String desc, Category.CategoryType type)
         {
-            /*int new_num = 1;
-            if (_Cats.Count > 0)
+            //int new_num = 1;
+            /*if (_Cats.Count > 0)
             {
                 new_num = (from c in _Cats select c.Id).Max();
                 new_num++;
@@ -284,10 +234,10 @@ namespace Budget
 
             SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
 
-            cmd.CommandText = "INSERT INTO categories(description,typeId) VALUES (@description, @type)";
+            cmd.CommandText = "INSERT INTO categories(Description,TypeId) VALUES (@Description, @TypeId)";
 
-            cmd.Parameters.AddWithValue("@description", desc);
-            cmd.Parameters.AddWithValue("@type", Convert.ToInt32(type));
+            cmd.Parameters.AddWithValue("@Description", desc);
+            cmd.Parameters.AddWithValue("@TypeId", Convert.ToInt32(type));
 
             cmd.Prepare();
             cmd.ExecuteNonQuery();
@@ -335,7 +285,7 @@ namespace Budget
             }
             return newList;*/
 
-            string selectCategory = "select * from categories";
+            string selectCategory = "select * from categories;";
 
             SQLiteCommand cmd = new SQLiteCommand(selectCategory, this.dbConnection);
             SQLiteDataReader rdr = cmd.ExecuteReader();
