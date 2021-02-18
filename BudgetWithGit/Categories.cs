@@ -233,11 +233,13 @@ namespace Budget
             _Cats.Add(new Category(new_num, desc, type));*/
 
             SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+            cmd.CommandText = "INSERT INTO categoryTypes (Description) VALUES (@Description)";
+            cmd.Parameters.AddWithValue("@Description", desc);
 
             cmd.CommandText = "INSERT INTO categories(Description,TypeId) VALUES (@Description, @TypeId)";
 
             cmd.Parameters.AddWithValue("@Description", desc);
-            cmd.Parameters.AddWithValue("@TypeId", Convert.ToInt32(type));
+            cmd.Parameters.AddWithValue("@TypeId", (int)type);
 
             cmd.Prepare();
             cmd.ExecuteNonQuery();
