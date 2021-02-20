@@ -69,6 +69,15 @@ namespace Budget
             Category catUpdate = GetCategoryFromId(id);
             catUpdate.Description = newDescr;
             catUpdate.Type = type;
+
+            SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+            cmd.CommandText = "UPDATE categories SET description = @desc, TypeId = @type where id = @id";
+            cmd.Parameters.AddWithValue("@desc", catUpdate.Description);
+            cmd.Parameters.AddWithValue("@type", (int)catUpdate.Type);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Prepare();
+            cmd.ExecuteNonQuery();
+
             return catUpdate;
         }
 
@@ -233,6 +242,8 @@ namespace Budget
             _Cats.Add(new Category(new_num, desc, type));*/
 
             SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+            cmd.CommandText = "DELETE TABLE IF EXISTS categoryTypes";
+
             cmd.CommandText = "INSERT INTO categoryTypes (Description) VALUES (@Description)";
             cmd.Parameters.AddWithValue("@Description", desc);
 
@@ -288,6 +299,7 @@ namespace Budget
             return newList;*/
 
             string selectCategory = "select * from categories;";
+
 
             SQLiteCommand cmd = new SQLiteCommand(selectCategory, this.dbConnection);
             SQLiteDataReader rdr = cmd.ExecuteReader();
