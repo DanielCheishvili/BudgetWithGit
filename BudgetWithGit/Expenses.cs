@@ -20,7 +20,7 @@ namespace Budget
     /// </summary>
     public class Expenses
     {
-        private static String DefaultFileName = "budget.txt";
+        //private static String DefaultFileName = "budget.txt";
         private List<Expense> _Expenses = new List<Expense>();
         private string _FileName;
         private string _DirName;
@@ -60,7 +60,7 @@ namespace Budget
             // ---------------------------------------------------------------
             // get filepath name (throws exception if it doesn't exist)
             // ---------------------------------------------------------------
-            filepath = BudgetFiles.VerifyReadFromFileName(filepath, DefaultFileName);
+            filepath = BudgetFiles.VerifyReadFromFileName(filepath/*, DefaultFileName*/);
 
             // ---------------------------------------------------------------
             // read the expenses from the xml file
@@ -100,7 +100,7 @@ namespace Budget
             // ---------------------------------------------------------------
             // get filepath name (throws exception if it doesn't exist)
             // ---------------------------------------------------------------
-            filepath = BudgetFiles.VerifyWriteToFileName(filepath, DefaultFileName);
+            filepath = BudgetFiles.VerifyWriteToFileName(filepath/*, DefaultFileName*/);
 
             // ---------------------------------------------------------------
             // save as XML
