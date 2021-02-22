@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
-using System.Data.SQLite;
 
 // ============================================================================
 // (c) Sandy Bultena 2018
@@ -54,10 +51,10 @@ namespace Budget
             SetCategoriesToDefaults();
         }
 
-        public Categories(SQLiteConnection conn, bool check)
+        public Categories(SQLiteConnection conn, bool newDb)
         {
             this.dbConnection = conn;
-            if(check)
+            if(newDb)
             {
                 SetCategoriesToDefaults();              
             }
@@ -92,12 +89,6 @@ namespace Budget
         /// <returns>The object category</returns>
         public Category GetCategoryFromId(int i)
         {
-            /*Category c = _Cats.Find(x => x.Id == i);
-            if (c == null)
-            {
-                throw new Exception("Cannot find category with id " + i.ToString());
-            }
-            return c;*/
 
             string selectID = $"select * from categories where id = {i}";
 
@@ -190,7 +181,6 @@ namespace Budget
             // ---------------------------------------------------------------
             // reset any current categories,
             // ---------------------------------------------------------------
-            //_Cats.Clear();
             SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
             cmd.CommandText = "DELETE FROM categories";
             cmd.ExecuteNonQuery();
@@ -233,14 +223,7 @@ namespace Budget
         /// <param name="type">The Type of the category</param>
         public void Add(String desc, Category.CategoryType type)
         {
-            //int new_num = 1;
-            /*if (_Cats.Count > 0)
-            {
-                new_num = (from c in _Cats select c.Id).Max();
-                new_num++;
-            }
-            _Cats.Add(new Category(new_num, desc, type));*/
-
+          
             SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
             cmd.CommandText = "DELETE TABLE IF EXISTS categoryTypes";
 
@@ -266,8 +249,6 @@ namespace Budget
             
             try
             {
-                /*int i = _Cats.FindIndex(x => x.Id == Id);
-                _Cats.RemoveAt(i);*/
 
                 SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
 
@@ -298,7 +279,7 @@ namespace Budget
             }
             return newList;*/
 
-            string selectCategory = "select * from categories;";
+            string selectCategory = "select * from categories ORDER BY id ASC;";
 
 
             SQLiteCommand cmd = new SQLiteCommand(selectCategory, this.dbConnection);

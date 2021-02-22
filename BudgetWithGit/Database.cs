@@ -7,14 +7,6 @@ namespace Budget
     {
         public static SQLiteConnection dbConnection;
 
-        public Database()
-        {
-
-        }
-        public Database(String path)
-        {
-
-        }
         public static void newDatabase(String path)
         {
             string cs = $"Data Source={path}; Foreign Keys=1";
