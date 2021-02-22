@@ -90,9 +90,13 @@ namespace Budget
         public Category GetCategoryFromId(int i)
         {
 
-            string selectID = $"select * from categories where id = {i}";
+            string selectID = $"select * from categories where id = @Id";
+
 
             SQLiteCommand cmd = new SQLiteCommand(selectID, this.dbConnection);
+            cmd.Parameters.AddWithValue("@Id",i);
+            cmd.Prepare();
+
             SQLiteDataReader rdr = cmd.ExecuteReader();
             rdr.Read();
             Category cat = new Category(rdr.GetInt32(0), rdr.GetString(1), (Category.CategoryType)rdr.GetInt32(2));
