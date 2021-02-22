@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.IO;
 
 namespace Budget
 {
@@ -59,9 +60,17 @@ namespace Budget
         }
         public static void openExistingDatabase(String path)
         {
-            string cs = $"Data Source={path}; Foreign Keys=1";
-            dbConnection = new SQLiteConnection(cs);
-            dbConnection.Open();
+            if(File.Exists(path))
+            {
+                string cs = $"Data Source={path}; Foreign Keys=1";
+                dbConnection = new SQLiteConnection(cs);
+                dbConnection.Open();
+            }
+            else
+            {
+                throw new FileNotFoundException("The file " + path + " was not found");
+            }
+            
 
 
         }

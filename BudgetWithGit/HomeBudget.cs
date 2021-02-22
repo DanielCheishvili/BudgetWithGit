@@ -119,10 +119,6 @@ namespace Budget
                 Database.newDatabase(databaseFile);
                 newDB = true;
             }
-            if(!File.Exists(databaseFile))
-            {
-                throw new FileNotFoundException("The file " + databaseFile + " was not found");
-            }
 
             _categories = new Categories(Database.dbConnection, newDB);
             _expenses = new Expenses();
