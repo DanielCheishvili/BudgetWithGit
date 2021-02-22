@@ -276,9 +276,9 @@ namespace Budget
                 cmd.Prepare();
                 cmd.ExecuteNonQuery();
             }
-            catch
+            catch(Exception e)
             {
-
+                Console.WriteLine("Not allowed to delete in database (foreign key constraint)", e.Message);
             }
             
         }
