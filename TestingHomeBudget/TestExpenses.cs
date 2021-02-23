@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Collections.Generic;
 using Budget;
+using System.Data.SQLite;
 
 namespace Budget
 {
@@ -21,7 +22,10 @@ namespace Budget
         public void ExpensesObject_New()
         {
             // Arrange
-
+            String folder = TestConstants.GetSolutionDir();
+            String newDB = $"{folder}\\newDB.db";
+            Database.newDatabase(newDB);
+            SQLiteConnection conn = Database.dbConnection;
             // Act
             Expenses expenses = new Expenses();
 
@@ -123,6 +127,12 @@ namespace Budget
             expenses.ReadFromFile(dir + "\\" + testInputFile);
             int category = 57;
             double amount = 98.1;
+            String folder = TestConstants.GetSolutionDir();
+            String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
+            String messyDB = $"{folder}\\messy.db";
+            System.IO.File.Copy(goodDB, messyDB, true);
+            Database.openExistingDatabase(messyDB);
+            SQLiteConnection conn = Database.dbConnection;
 
             // Act
             expenses.Add(DateTime.Now,category,amount,"new expense");
@@ -219,7 +229,7 @@ namespace Budget
         // ========================================================================
 
         [TestMethod]
-        public void ExpenseMethod_WriteToFile_VerifyNewExpenseWrittenCorrectly()
+         public void ExpenseMethod_WriteToFile_VerifyNewExpenseWrittenCorrectly()
         {
             // Arrange
             String dir = GetSolutionDir();

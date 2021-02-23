@@ -27,29 +27,15 @@ namespace Budget
             cmd.CommandText = @"CREATE TABLE categoryTypes(Id INTEGER PRIMARY KEY, Description TEXT)";
             cmd.ExecuteNonQuery();
 
-            cmd.CommandText = @"INSERT INTO categoryTypes (Id,Description) VALUES (@Id, @desc)";
-            cmd.Parameters.AddWithValue("@desc","Income");
-            cmd.Parameters.AddWithValue("@Id",1);
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = @"INSERT INTO categoryTypes (Id,Description) VALUES (@Id, @desc)";
-            cmd.Parameters.AddWithValue("@desc", "Expense");
-            cmd.Parameters.AddWithValue("@Id", 2);
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = @"INSERT INTO categoryTypes (Id,Description) VALUES (@Id, @desc)";
-            cmd.Parameters.AddWithValue("@desc", "Credit");
-            cmd.Parameters.AddWithValue("@Id", 3);
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = @"INSERT INTO categoryTypes (Id,Description) VALUES (@Id, @desc)";
-            cmd.Parameters.AddWithValue("@desc", "Savings");
-            cmd.Parameters.AddWithValue("@Id", 4);
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
+            for (int i = 1; i <= Enum.GetNames(typeof(Category.CategoryType)).Length; i++)
+            {
+                cmd.CommandText = "INSERT INTO categoryTypes(Id, Description) VALUES(@id, @desc)";
+                cmd.Parameters.AddWithValue("@id", i);
+                cmd.Parameters.AddWithValue("@desc", Enum.GetName(typeof(Category.CategoryType), i));
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
+            }
+           
 
             cmd.CommandText = @"CREATE TABLE categories (Id INTEGER PRIMARY KEY, Description TEXT, TypeId INTEGER REFERENCES categoryTypes(Id))";
             cmd.ExecuteNonQuery();
