@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
 using System.Data.SQLite;
+using System.Globalization;
 
 // ============================================================================
 // (c) Sandy Bultena 2018
@@ -25,8 +26,19 @@ namespace Budget
         private List<Expense> _Expenses = new List<Expense>();
         private string _FileName;
         private string _DirName;
+        private SQLiteConnection dbConnection;
+        public Expenses(SQLiteConnection conn)
+        {
+            if(conn == null)
+            {
+                throw new Exception("No connection to database");
+            }
+            this.dbConnection = conn;
+            
 
-        
+        }
+
+
         /// <summary>
         /// Gets the filename.
         /// </summary>
@@ -135,18 +147,10 @@ namespace Budget
         /// <param name="description">Description of the expanse</param>
         public void Add(DateTime date, int category, Double amount, String description)
         {
-            SQLiteCommand cmd = new SQLiteCommand(Database.dbConnection);
-
-            cmd.CommandText = "INSERT INTO categoryTypes (Description) VALUES (@Description)";
-            cmd.Parameters.AddWithValue("@Description", description);
-
-            cmd.CommandText = "INSERT INTO categories(Description,TypeId) VALUES (@Description, @TypeId)";
-
-            cmd.Parameters.AddWithValue("@Description", description);
-            cmd.Parameters.AddWithValue("@TypeId", category);
+            var cmd = new SQLiteCommand(this.dbConnection);
 
             cmd.CommandText = "INSERT INTO expenses(Date , Description , Amount , CategoryId) VALUES (@Date , @Description , @Amount , @CategoryId)";
-            cmd.Parameters.AddWithValue("@Date", date);
+            cmd.Parameters.AddWithValue("@Date", date.ToString("yyyy-MM-dd"));
             cmd.Parameters.AddWithValue("@Description", description);
             cmd.Parameters.AddWithValue("@Amount", amount);
             cmd.Parameters.AddWithValue("@CategoryId", category);
@@ -163,14 +167,19 @@ namespace Budget
         {
             try
             {
-                int i = _Expenses.FindIndex(x => x.Id == Id);
-                _Expenses.RemoveAt(i);
-            }
-            catch
-            {
 
+                SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+
+                cmd.CommandText = "DELETE FROM expenses WHERE id = @Id";
+                cmd.Parameters.AddWithValue("@id", Id);
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
             }
-            
+            catch (Exception e)
+            {
+                Console.WriteLine("Not allowed to delete in database (foreign key constraint)", e.Message);
+            }
+
 
         }
 
@@ -181,11 +190,18 @@ namespace Budget
        /// <returns>The list of expenses</returns>
         public List<Expense> List()
         {
+            string selectCategory = "select * from expenses ORDER BY id ASC;";
+
+
+            SQLiteCommand cmd = new SQLiteCommand(selectCategory, this.dbConnection);
+            SQLiteDataReader rdr = cmd.ExecuteReader();
+
             List<Expense> newList = new List<Expense>();
-            foreach (Expense expense in _Expenses)
+            while (rdr.Read())
             {
-                newList.Add(new Expense(expense));
+                newList.Add(new Expense(rdr.GetInt32(0), DateTime.ParseExact(rdr.GetString(1), "yyyy-MM-dd", CultureInfo.InvariantCulture), rdr.GetInt32(4), rdr.GetDouble(2),rdr.GetString(3)));
             }
+            
             return newList;
         }
 

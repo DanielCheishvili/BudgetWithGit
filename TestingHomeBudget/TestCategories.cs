@@ -32,6 +32,8 @@ namespace Budget
 
             // Assert 
             Assert.IsInstanceOfType(categories,typeof(Categories));
+            Database.CloseDatabaseAndReleaseFile();
+
 
         }
 
@@ -51,6 +53,8 @@ namespace Budget
 
             // Assert 
             Assert.IsFalse(categories.List().Count == 0, "Non zero categories");
+            Database.CloseDatabaseAndReleaseFile();
+
 
         }
 
@@ -74,6 +78,7 @@ namespace Budget
             Assert.AreEqual(numberOfCategoriesInFile, list.Count, "Number of list elements are correct");
             Assert.AreEqual(firstCategoryInFile.Id, firstCategory.Id, "ID of first element");
             Assert.AreEqual(firstCategoryInFile.Description, firstCategory.Description, "Description of first Element");
+            Database.CloseDatabaseAndReleaseFile();
 
         }
 
@@ -94,6 +99,7 @@ namespace Budget
 
             // Assert
             Assert.AreEqual(numberOfCategoriesInFile, list.Count);
+            Database.CloseDatabaseAndReleaseFile();
 
         }
 
@@ -122,6 +128,7 @@ namespace Budget
             // Assert
             Assert.AreEqual(numberOfCategoriesInFile + 1, sizeOfList, "List size incremented");
             Assert.AreEqual(descr, categoriesList[sizeOfList - 1].Description, "Description property set correctly");
+            Database.CloseDatabaseAndReleaseFile();
 
         }
 
@@ -148,6 +155,7 @@ namespace Budget
             // Assert
             Assert.AreEqual(numberOfCategoriesInFile - 1, sizeOfList, "List size decremented");
             Assert.IsFalse(categoriesList.Exists(e => e.Id == IdToDelete), "correct Category item deleted");
+            Database.CloseDatabaseAndReleaseFile();
 
         }
 
@@ -180,6 +188,8 @@ namespace Budget
             {
                 Assert.IsTrue(false, "Invalid ID causes Delete to break");
             }
+            Database.CloseDatabaseAndReleaseFile();
+
         }
 
         // ========================================================================
@@ -200,6 +210,7 @@ namespace Budget
 
             // Assert
             Assert.AreEqual(catID,category.Id);
+            Database.CloseDatabaseAndReleaseFile();
 
         }
 
@@ -237,6 +248,7 @@ namespace Budget
             {
                 Assert.IsTrue(categories.List().Exists(c => c.Description == defaultCat.Description && c.Type == defaultCat.Type));
             }
+            Database.CloseDatabaseAndReleaseFile();
 
         }
 
@@ -261,6 +273,7 @@ namespace Budget
             // Assert 
             Assert.AreEqual(newDescr, category.Description);
             Assert.AreEqual(Category.CategoryType.Income, category.Type);
+            Database.CloseDatabaseAndReleaseFile();
 
         }
 

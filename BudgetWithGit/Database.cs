@@ -60,5 +60,20 @@ namespace Budget
 
 
         }
+        static public void CloseDatabaseAndReleaseFile()
+        {
+            if (Database.dbConnection != null)
+            {
+
+                // close the database connection
+                Database.dbConnection.Close();
+
+                // wait for the garbage collector to remove the
+                // lock from the database file
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+        }
+
     }
 }

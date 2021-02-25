@@ -27,7 +27,8 @@ namespace Budget
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
-            HomeBudget homeBudget = new HomeBudget(messyDB, inFile, false);
+            Database.openExistingDatabase(messyDB);
+            HomeBudget homeBudget = new HomeBudget(messyDB, false);
 
             int maxRecords = TestConstants.budgetItemsByCategoryAndMonth_MaxRecords;
             Dictionary<string, object> firstRecord = TestConstants.getBudgetItemsByCategoryAndMonthFirstRecord();
@@ -37,7 +38,7 @@ namespace Budget
 
             // Assert
             Assert.AreEqual(maxRecords+1,budgetItemsByCategoryAndMonth.Count,"All records plus TOTALS are accounted for");
-
+            Database.CloseDatabaseAndReleaseFile();
         }
 
         // ========================================================================
@@ -51,7 +52,8 @@ namespace Budget
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
-            HomeBudget homeBudget = new HomeBudget(messyDB, inFile, false);
+            Database.openExistingDatabase(messyDB);
+            HomeBudget homeBudget = new HomeBudget(messyDB,  false);
 
             int maxRecords = TestConstants.budgetItemsByCategoryAndMonth_MaxRecords; 
             Dictionary<string,object> firstRecord = TestConstants.getBudgetItemsByCategoryAndMonthFirstRecord();
@@ -62,7 +64,7 @@ namespace Budget
 
             // Assert
             Assert.IsTrue(AssertDictionaryForExpenseByCategoryAndMonthIsOK(firstRecord,firstRecordTest));
-            
+            Database.CloseDatabaseAndReleaseFile();
         }
 
         // ========================================================================
@@ -76,7 +78,8 @@ namespace Budget
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
-            HomeBudget homeBudget = new HomeBudget(messyDB, inFile, false);
+            Database.openExistingDatabase(messyDB);
+            HomeBudget homeBudget = new HomeBudget(messyDB, false);
 
             int maxRecords = TestConstants.budgetItemsByCategoryAndMonth_MaxRecords;
             Dictionary<string, object> totalsRecord = TestConstants.getBudgetItemsByCategoryAndMonthTotalsRecord();
@@ -88,7 +91,7 @@ namespace Budget
             // Assert
             // ... loop over all key/value pairs 
             Assert.IsTrue(AssertDictionaryForExpenseByCategoryAndMonthIsOK(totalsRecord, totalsRecordTest), "Totals Record is Valid");
-
+            Database.CloseDatabaseAndReleaseFile();
         }
 
         // ========================================================================
@@ -102,7 +105,8 @@ namespace Budget
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
-            HomeBudget homeBudget = new HomeBudget(messyDB, inFile, false);
+            Database.openExistingDatabase(messyDB);
+            HomeBudget homeBudget = new HomeBudget(messyDB,  false);
             List<Dictionary<string, object>> expectedResults =TestConstants.getBudgetItemsByCategoryAndMonthCat10();
 
             // Act
@@ -116,6 +120,7 @@ namespace Budget
                     gotResults[record]), "Record:" + record + " is Valid");
 
             }
+            Database.CloseDatabaseAndReleaseFile();
         }
 
         // ========================================================================
@@ -129,7 +134,8 @@ namespace Budget
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
-            HomeBudget homeBudget = new HomeBudget(messyDB, inFile, false);
+            Database.openExistingDatabase(messyDB);
+            HomeBudget homeBudget = new HomeBudget(messyDB, false);
             List<Dictionary<string, object>> expectedResults = TestConstants.getBudgetItemsByCategoryAndMonth2020();
 
             // Act
@@ -143,6 +149,7 @@ namespace Budget
                     gotResults[record]), "Record:" + record + " is Valid");
 
             }
+            Database.CloseDatabaseAndReleaseFile();
         }
 
 
