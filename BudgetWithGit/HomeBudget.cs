@@ -48,45 +48,8 @@ namespace Budget
 
     public class HomeBudget
     {
-        private string _FileName;
-        private string _DirName;
         private Categories _categories;
         private Expenses _expenses;
-
-        // ====================================================================
-        // Properties
-        // ===================================================================
-
-        // Properties (location of files etc)
-
-        /// <summary>
-        /// Gets the filename.
-        /// </summary>
-        public String FileName { get { return _FileName; } }
-
-        /// <summary>
-        /// Gets the directory name.
-        /// </summary>
-        public String DirName { get { return _DirName; } }
-
-        /// <summary>
-        /// The public propery that returns the full path if a valid file name and directory name specified.
-        /// Otherwise it returns a null file path which will use the default file path.
-        /// </summary>
-        public String PathName
-        {
-            get
-            {
-                if (_FileName != null && _DirName != null)
-                {
-                    return Path.GetFullPath(_DirName + "\\" + _FileName);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
 
         // Properties (categories and expenses object)
 
@@ -100,14 +63,6 @@ namespace Budget
         /// </summary>
         public Expenses expenses { get { return _expenses; } }
 
-        /// <summary>
-        /// constructor with default categories with no expenses.
-        /// </summary>
-       /* public HomeBudget()
-        {
-            _categories = new Categories();
-            _expenses = new Expenses();
-        }*/
         public HomeBudget(String databaseFile,bool newDB = false)
         {
             if (!newDB && File.Exists(databaseFile))
@@ -122,7 +77,7 @@ namespace Budget
 
             _categories = new Categories(Database.dbConnection, newDB);
             _expenses = new Expenses(Database.dbConnection);
-            // read the expenses from the xml file
+            
             
         }
 
@@ -152,8 +107,20 @@ namespace Budget
             // ------------------------------------------------------------------------
             // return joined list within time frame
             // ------------------------------------------------------------------------
-            Start = Start ?? new DateTime(1900, 1, 1);
-            End = End ?? new DateTime(2500, 1, 1);
+
+            /*Start = Start ?? new DateTime(1900, 1, 1);
+            End = End ?? new DateTime(2500, 1, 1);*/
+            DateTime realStart = Start ?? new DateTime(1900, 1, 1);
+            DateTime realEnd = End ?? new DateTime(2500, 1, 1);
+
+            SQLiteCommand cmd = new SQLiteCommand(Database.dbConnection);
+            cmd.CommandText = @"SELECT c.Id, e.Id c.Description, c.TypeId from categories as c 
+                                INNER JOIN expenses as e on c.id == e.id 
+                                WHERE e.Date >= @realStart AND e.date <= @realEnd
+                                ORDER BY e.Date";
+            cmd.Parameters.AddWithValue("@realStart", realStart);
+            cmd.Parameters.AddWithValue("@realEnd", realEnd);
+
 
             var query =  from c in _categories.List()
                         join e in _expenses.List() on c.Id equals e.Category

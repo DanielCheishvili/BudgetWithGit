@@ -11,42 +11,8 @@ namespace Budget
     public class TestExpenses
     {
         int numberOfExpensesInFile = TestConstants.numberOfExpensesInFile;
-        String testInputFile = TestConstants.testExpensesInputFile;
         int maxIDInExpenseFile = TestConstants.maxIDInExpenseFile;
-        Expense firstExpenseInFile = new Expense(1, new DateTime(2021, 1, 10), 10, 12, "hat (on credit)");
 
-
-        // ========================================================================
-
-        [TestMethod]
-        public void ExpensesObject_New()
-        {
-            // Arrange
-            String folder = TestConstants.GetSolutionDir();
-            String newDB = $"{folder}\\newDB.db";
-            Database.newDatabase(newDB);
-            SQLiteConnection conn = Database.dbConnection;
-            // Act
-            Expenses expenses = new Expenses(conn);
-
-            // Assert 
-            Assert.IsInstanceOfType(expenses, typeof(Expenses));
-
-            Assert.IsTrue(typeof(Expenses).GetProperty("FileName").CanWrite == false);
-            Assert.IsTrue(typeof(Expenses).GetProperty("DirName").CanWrite == false);
-            Database.CloseDatabaseAndReleaseFile();
-
-
-        }
-
-
-        // ========================================================================
-
-        
-       
-        // ========================================================================
-
-    
 
         [TestMethod]
         public void ExpensesMethod_List_ReturnsListOfExpenses()
@@ -183,37 +149,6 @@ namespace Budget
             }
             Database.CloseDatabaseAndReleaseFile();
 
-        }
-
-
-        // -------------------------------------------------------
-        // helpful functions, ... they are not tests
-        // -------------------------------------------------------
-
-        private String GetSolutionDir() {
-
-            // this is valid for C# .Net Foundation (not for C# .Net Core)
-            return Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\"));
-        }
-
-        // source taken from: https://www.dotnetperls.com/file-equals
-
-        private bool FileEquals(string path1, string path2)
-        {
-            byte[] file1 = File.ReadAllBytes(path1);
-            byte[] file2 = File.ReadAllBytes(path2);
-            if (file1.Length == file2.Length)
-            {
-                for (int i = 0; i < file1.Length; i++)
-                {
-                    if (file1[i] != file2[i])
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
         }
     }
 }
