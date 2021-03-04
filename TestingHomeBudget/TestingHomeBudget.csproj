@@ -72,7 +72,6 @@
     <Compile Include="TestDatabase.cs" />
     <Compile Include="TestExpense.cs" />
     <Compile Include="TestExpenses.cs" />
-    <Compile Include="TestHomeBudget.cs" />
     <Compile Include="TestHomeBudget_GetBudgetDictionaryByCategoryAndMonth.cs" />
     <Compile Include="TestHomeBudget_GetBudgetItems.cs" />
     <Compile Include="TestHomeBudget_GetBudgetItemsByCategory.cs" />

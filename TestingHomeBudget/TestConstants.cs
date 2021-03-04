@@ -137,7 +137,7 @@ namespace Budget
 
             list.Add(new BudgetItemsByMonth
             {
-                Month = "2018/01",
+                Month = "2018-01",
                 Details = budgetItems,
                 Total = budgetItem1.Amount + budgetItem2.Amount
             });
@@ -153,7 +153,7 @@ namespace Budget
 
             list.Add(new BudgetItemsByMonth
             {
-                Month = "2018/01",
+                Month = "2018-01",
                 Details = budgetItems,
                 Total = budgetItem2.Amount
             });
@@ -242,7 +242,7 @@ namespace Budget
             List<BudgetItem> budgetItems;
 
             Dictionary<string, object> dict = new Dictionary<string, object> {
-                { "Month","2018/01" },{"Total", budgetItem1.Amount+budgetItem2.Amount }  };
+                { "Month","2018-01" },{"Total", budgetItem1.Amount+budgetItem2.Amount }  };
 
 
             budgetItems = new List<BudgetItem>();
@@ -283,7 +283,7 @@ namespace Budget
             budgetItems.Add(budgetItem1);
 
             list.Add(new Dictionary<string, object> {
-                {"Month","2018/01" },
+                {"Month","2018-01" },
                 { "Clothes",budgetItem1.Amount},
                 {"details:Clothes",budgetItems },
                 }
@@ -294,7 +294,7 @@ namespace Budget
             budgetItems.Add(budgetItem3);
 
             list.Add(new Dictionary<string, object> {
-                {"Month","2019/01" },
+                {"Month","2019-01" },
                 { "Clothes",budgetItem3.Amount},
                 {"details:Clothes",budgetItems },
                 }
@@ -315,7 +315,7 @@ namespace Budget
             List< Dictionary<string, object> > list = new List<Dictionary<string, object>>();
 
             list.Add(new Dictionary<string, object> {
-                {"Month","2020/01" },
+                {"Month","2020-01" },
                 { "Credit Card",budgetItem4.Amount},
                 {"details:Credit Card",new List<BudgetItem>{budgetItem4 } },
                 {"Eating Out",budgetItem5.Amount + budgetItem7.Amount },

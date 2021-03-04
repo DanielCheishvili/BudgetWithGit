@@ -20,9 +20,6 @@ namespace Budget
     /// </summary>
     public class BudgetFiles
     {
-        private static String DefaultSavePath = @"Budget\";
-        private static String DefaultAppData = @"%USERPROFILE%\AppData\Local\";//explain quickly
-
         /// <summary>
         /// Checks if there is an existing file path to read from. If no file path exists
         /// it would use the default file location which is specified.
@@ -35,7 +32,7 @@ namespace Budget
         /// <param name="DefaultFileName">The default file path if no file path is specified</param>
         /// 
         /// <returns>The full file path </returns>
-        public static String VerifyReadFromFileName(String FilePath, String DefaultFileName)
+        public static String VerifyReadFromFileName(String FilePath/*, String DefaultFileName*/)
         {
 
             // ---------------------------------------------------------------
@@ -43,7 +40,8 @@ namespace Budget
             // ---------------------------------------------------------------
             if (FilePath == null)
             {
-                FilePath = Environment.ExpandEnvironmentVariables(DefaultAppData + DefaultSavePath + DefaultFileName);
+                throw new FileNotFoundException("file path is not defined.");
+               
             }
 
             // ---------------------------------------------------------------
@@ -75,7 +73,7 @@ namespace Budget
         /// <param name="DefaultFileName">The default file path if no file path is specified</param>
         /// 
         /// <returns>The full file path </returns>
-        public static String VerifyWriteToFileName(String FilePath, String DefaultFileName)
+        public static String VerifyWriteToFileName(String FilePath/*, String DefaultFileName*/)
         {
             // ---------------------------------------------------------------
             // if the directory for the path was not specified, then use standard application data
@@ -83,22 +81,12 @@ namespace Budget
             // ---------------------------------------------------------------
             if (FilePath == null)
             {
-                // create the default appdata directory if it does not already exist
-                String tmp = Environment.ExpandEnvironmentVariables(DefaultAppData);
-                if (!Directory.Exists(tmp))
-                {
-                    Directory.CreateDirectory(tmp);
-                }
-
-                // create the default Budget directory in the appdirectory if it does not already exist
-                tmp = Environment.ExpandEnvironmentVariables(DefaultAppData + DefaultSavePath);
-                if (!Directory.Exists(tmp))
-                {
-                    Directory.CreateDirectory(tmp);
-                }
-
-                FilePath = Environment.ExpandEnvironmentVariables(DefaultAppData + DefaultSavePath + DefaultFileName);
+                
+                throw new FileNotFoundException("file path is not defined.");
             }
+
+
+
 
             // ---------------------------------------------------------------
             // does directory where you want to save the file exist?

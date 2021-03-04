@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
-using System.Data.SQLite;
 
 // ============================================================================
 // (c) Sandy Bultena 2018
@@ -28,10 +25,11 @@ namespace Budget
     /// </summary>
     public class Categories
     {
-        private static String DefaultFileName = "budgetCategories.txt";
+        //private static String DefaultFileName = "budgetCategories.txt";
         private List<Category> _Cats = new List<Category>();
         private string _FileName;
         private string _DirName;
+        private SQLiteConnection dbConnection;
 
 
         /// <summary>
@@ -53,13 +51,29 @@ namespace Budget
             SetCategoriesToDefaults();
         }
 
-        public Categories(SQLiteConnection conn, bool check)
+        public Categories(SQLiteConnection conn, bool newDb)
         {
-
+            this.dbConnection = conn;
+            if(newDb)
+            {
+                SetCategoriesToDefaults();              
+            }
+            //open connection
+            
         }
         public Category UpdateProperties(int id, string newDescr, Category.CategoryType type)
         {
             Category catUpdate = GetCategoryFromId(id);
+            catUpdate.Description = newDescr;
+            catUpdate.Type = type;
+
+            SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+            cmd.CommandText = "UPDATE categories SET description = @desc, TypeId = @type where id = @id";
+            cmd.Parameters.AddWithValue("@desc", catUpdate.Description);
+            cmd.Parameters.AddWithValue("@type", (int)catUpdate.Type);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Prepare();
+            cmd.ExecuteNonQuery();
 
             return catUpdate;
         }
@@ -75,12 +89,20 @@ namespace Budget
         /// <returns>The object category</returns>
         public Category GetCategoryFromId(int i)
         {
-            Category c = _Cats.Find(x => x.Id == i);
-            if (c == null)
-            {
-                throw new Exception("Cannot find category with id " + i.ToString());
-            }
-            return c;
+
+            string selectID = $"select * from categories where id = @Id";
+
+
+            SQLiteCommand cmd = new SQLiteCommand(selectID, this.dbConnection);
+            cmd.Parameters.AddWithValue("@Id",i);
+            cmd.Prepare();
+
+            SQLiteDataReader rdr = cmd.ExecuteReader();
+            rdr.Read();
+            Category cat = new Category(rdr.GetInt32(0), rdr.GetString(1), (Category.CategoryType)rdr.GetInt32(2));
+            rdr.Close();
+
+            return cat; 
         }
 
         /// <summary>
@@ -106,7 +128,7 @@ namespace Budget
             // ---------------------------------------------------------------
             // get filepath name (throws exception if it doesn't exist)
             // ---------------------------------------------------------------
-            filepath = BudgetFiles.VerifyReadFromFileName(filepath, DefaultFileName);
+            filepath = BudgetFiles.VerifyReadFromFileName(filepath/*, DefaultFileName*/);
 
             // ---------------------------------------------------------------
             // If file exists, read it
@@ -139,7 +161,7 @@ namespace Budget
             // ---------------------------------------------------------------
             // get filepath name (throws exception if it doesn't exist)
             // ---------------------------------------------------------------
-            filepath = BudgetFiles.VerifyWriteToFileName(filepath, DefaultFileName);
+            filepath = BudgetFiles.VerifyWriteToFileName(filepath/*, DefaultFileName*/);
 
             // ---------------------------------------------------------------
             // save as XML
@@ -153,7 +175,7 @@ namespace Budget
             _FileName = Path.GetFileName(filepath);
         }
 
-        
+
 
         /// <summary>
         /// Sets the categories to default. It resets all current cateogories if any
@@ -163,8 +185,9 @@ namespace Budget
             // ---------------------------------------------------------------
             // reset any current categories,
             // ---------------------------------------------------------------
-            _Cats.Clear();
-
+            SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+            cmd.CommandText = "DELETE FROM categories";
+            cmd.ExecuteNonQuery();
             // ---------------------------------------------------------------
             // Add Defaults
             // ---------------------------------------------------------------
@@ -185,6 +208,9 @@ namespace Budget
             Add("Savings", Category.CategoryType.Savings);
             Add("Income", Category.CategoryType.Income);
 
+
+
+
         }
 
        
@@ -201,16 +227,22 @@ namespace Budget
         /// <param name="type">The Type of the category</param>
         public void Add(String desc, Category.CategoryType type)
         {
-            int new_num = 1;
-            if (_Cats.Count > 0)
-            {
-                new_num = (from c in _Cats select c.Id).Max();
-                new_num++;
-            }
-            _Cats.Add(new Category(new_num, desc, type));
-        }
+          
+            SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+            cmd.CommandText = "DELETE TABLE IF EXISTS categoryTypes";
 
-        
+            cmd.CommandText = "INSERT INTO categoryTypes (Description) VALUES (@Description)";
+            cmd.Parameters.AddWithValue("@Description", desc);
+
+            cmd.CommandText = "INSERT INTO categories(Description,TypeId) VALUES (@Description, @TypeId)";
+
+            cmd.Parameters.AddWithValue("@Description", desc);
+            cmd.Parameters.AddWithValue("@TypeId", (int)type);
+
+            cmd.Prepare();
+            cmd.ExecuteNonQuery();
+
+        }
 
         /// <summary>
         /// Deletes the category from the category list.
@@ -218,14 +250,20 @@ namespace Budget
         /// <param name="Id">The id of the category</param>
         public void Delete(int Id)
         {
+            
             try
             {
-                int i = _Cats.FindIndex(x => x.Id == Id);
-                _Cats.RemoveAt(i);
-            }
-            catch
-            {
 
+                SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+
+                cmd.CommandText = "DELETE FROM categories WHERE id = @Id";
+                cmd.Parameters.AddWithValue("@id", Id);
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Not allowed to delete in database (foreign key constraint)", e.Message);
             }
             
         }
@@ -238,12 +276,26 @@ namespace Budget
         /// <returns>The list of categories</returns>
         public List<Category> List()
         {
-            List<Category> newList = new List<Category>();
+            /*List<Category> newList = new List<Category>();
             foreach (Category category in _Cats)
             {
                 newList.Add(new Category(category));
             }
+            return newList;*/
+
+            string selectCategory = "select * from categories ORDER BY id ASC;";
+
+
+            SQLiteCommand cmd = new SQLiteCommand(selectCategory, this.dbConnection);
+            SQLiteDataReader rdr = cmd.ExecuteReader();
+
+            List<Category> newList = new List<Category>();
+            while (rdr.Read())
+            {
+                newList.Add(new Category(rdr.GetInt32(0),rdr.GetString(1),(Category.CategoryType)rdr.GetInt32(2)));
+            }
             return newList;
+            
         }
 
         // ====================================================================

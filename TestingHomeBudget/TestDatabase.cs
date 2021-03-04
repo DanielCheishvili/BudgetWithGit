@@ -35,6 +35,8 @@ namespace BudgetCodeTests
             {
                 Assert.IsTrue(table_string.Contains(table), $"table {table} in database");
             }
+            Database.CloseDatabaseAndReleaseFile();
+
         }
 
         [TestMethod]
@@ -206,7 +208,35 @@ namespace BudgetCodeTests
                 int index = DatabaseOutput.FindIndex(s => s.Contains(FKProperty));
                 Assert.AreNotEqual(-1, index, $"{FKProperty} in table expenses");
             }
+            Database.CloseDatabaseAndReleaseFile();
+
         }
+        [TestMethod]
+        public void SQLite_TestExistingDatabase_RequiredForeignKeysExpenses()
+        {
+            // For SQLite, you need to use the following as a connection string
+            // if you want your foreign key constraints to work.
+
+            // string cs = $"Data Source={filepath}; Foreign Keys=1";
+
+            // Arrange
+            String folder = TestConstants.GetSolutionDir();
+            String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
+            String messyDB = $"{folder}\\messy.db";
+            System.IO.File.Copy(goodDB, messyDB, true);
+
+            // Act
+            Database.openExistingDatabase(messyDB);
+
+            // Assert
+            String connectionString = Database.dbConnection.ConnectionString;
+            Assert.IsTrue(connectionString.Contains("Foreign Keys=1"),
+                           "FK Constraints enabled");
+
+            // Cleanup
+            Database.CloseDatabaseAndReleaseFile();
+        }
+
 
     }
 
@@ -257,4 +287,5 @@ namespace BudgetCodeTests
 
         }
     }
+
 }
