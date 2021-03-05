@@ -20,8 +20,7 @@ namespace Budget
         public void HomeBudgetMethod_GetBudgetItems_NoStartEnd_NoFilter()
         {
             // Arrange
-            string folder = GetSolutionDir();
-            string inFile = GetSolutionDir() + "\\" + testInputFile;
+            String folder = TestConstants.GetSolutionDir();
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
@@ -50,8 +49,7 @@ namespace Budget
         public void HomeBudgetMethod_GetBudgetItems_NoStartEnd_NoFilter_VerifyBalanceProperty()
         {
             // Arrange
-            string folder = GetSolutionDir();
-            string inFile = GetSolutionDir() + "\\" + testInputFile;
+            String folder = TestConstants.GetSolutionDir();
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
@@ -77,8 +75,7 @@ namespace Budget
         public void HomeBudgetMethod_GetBudgetItems_NoStartEnd_FilterbyCategory()
         {
             // Arrange
-            string folder = GetSolutionDir();
-            string inFile = GetSolutionDir() + "\\" + testInputFile;
+            String folder = TestConstants.GetSolutionDir();
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
@@ -110,8 +107,7 @@ namespace Budget
         public void HomeBudgetMethod_GetBudgetItems_2018_filterDate()
         {
             // Arrange
-            string folder = GetSolutionDir();
-            string inFile = GetSolutionDir() + "\\" + testInputFile;
+            String folder = TestConstants.GetSolutionDir();
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
@@ -142,8 +138,7 @@ namespace Budget
         public void HomeBudgetMethod_GetBudgetItems_2018_filterDate_verifyBalance()
         {
             // Arrange
-            string folder = GetSolutionDir();
-            string inFile = GetSolutionDir() + "\\" + testInputFile;
+            String folder = TestConstants.GetSolutionDir();
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
@@ -167,8 +162,7 @@ namespace Budget
         public void HomeBudgetMethod_GetBudgetItems_2018_filterDateAndCat10()
         {
             // Arrange
-            string folder = GetSolutionDir();
-            string inFile = GetSolutionDir() + "\\" + testInputFile;
+            String folder = TestConstants.GetSolutionDir();
             String goodDB = $"{folder}\\{TestConstants.testDBInputFile}";
             String messyDB = $"{folder}\\messy.db";
             System.IO.File.Copy(goodDB, messyDB, true);
@@ -192,23 +186,6 @@ namespace Budget
                 Assert.AreEqual(budgetItem.ShortDescription, expense.Description, "Expense description ok");
             }
         }
-
-
-
-
-        // ========================================================================
-
-        // -------------------------------------------------------
-        // helpful functions, ... they are not tests
-        // -------------------------------------------------------
-
-        private String GetSolutionDir()
-        {
-
-            // this is valid for C# .Net Foundation (not for C# .Net Core)
-            return Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\"));
-        }
-
      
     }
 }

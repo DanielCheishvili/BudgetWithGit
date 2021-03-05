@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Dynamic;
 using System.Data.SQLite;
+using System.Globalization;
 
 // ============================================================================
 // (c) Sandy Bultena 2018
@@ -80,14 +81,6 @@ namespace Budget
             
             
         }
-
-        /// <summary>
-        /// Constructor with an existing budget.
-        /// </summary>
-        /// 
-        /// <param name="budgetFileName">The file name of the budget items.</param>
-       
-
         #region GetList
 
         /// <summary>
@@ -107,54 +100,51 @@ namespace Budget
             // ------------------------------------------------------------------------
             // return joined list within time frame
             // ------------------------------------------------------------------------
-
-            /*Start = Start ?? new DateTime(1900, 1, 1);
-            End = End ?? new DateTime(2500, 1, 1);*/
             DateTime realStart = Start ?? new DateTime(1900, 1, 1);
             DateTime realEnd = End ?? new DateTime(2500, 1, 1);
 
             SQLiteCommand cmd = new SQLiteCommand(Database.dbConnection);
-            cmd.CommandText = @"SELECT c.Id, e.Id c.Description, c.TypeId from categories as c 
-                                INNER JOIN expenses as e on c.id == e.id 
+            cmd.CommandText = @"SELECT c.Id, c.Description, c.TypeId, e.Id, e.Date, e.Description, e.Amount
+                                from categories as c 
+                                INNER JOIN expenses as e on c.id == e.CategoryId 
                                 WHERE e.Date >= @realStart AND e.date <= @realEnd
-                                ORDER BY e.Date";
+                                ORDER BY e.Date ASC";
             cmd.Parameters.AddWithValue("@realStart", realStart);
             cmd.Parameters.AddWithValue("@realEnd", realEnd);
+            cmd.Prepare();
+
+            cmd.ExecuteNonQuery();
 
 
-            var query =  from c in _categories.List()
-                        join e in _expenses.List() on c.Id equals e.Category
-                        where e.Date >= Start && e.Date <= End
-                        select new { CatId = c.Id, ExpId = e.Id, e.Date, Category = c.Description, e.Description, e.Amount };
 
             // ------------------------------------------------------------------------
             // create a BudgetItem list with totals,
             // ------------------------------------------------------------------------
             List<BudgetItem> items = new List<BudgetItem>();
             Double total = 0;
+            SQLiteDataReader rdr = cmd.ExecuteReader();
 
-            foreach (var e in query.OrderBy(q => q.Date))
+            while(rdr.Read())
             {
                 // filter out unwanted categories if filter flag is on
-                if (FilterFlag && CategoryID != e.CatId)
+                if (FilterFlag && CategoryID != rdr.GetInt32(0))
                 {
                     continue;
                 }
+                BudgetItem budgetItem = new BudgetItem();
 
                 // keep track of running totals
-                total = total + e.Amount;
-                items.Add(new BudgetItem
-                {
-                    CategoryID = e.CatId,
-                    ExpenseID = e.ExpId,
-                    ShortDescription = e.Description,
-                    Date = e.Date,
-                    Amount = e.Amount,
-                    Category = e.Category,
-                    Balance = total
-                });
-            }
+                total += rdr.GetDouble(6);
+                budgetItem.CategoryID = rdr.GetInt32(0);
+                budgetItem.ExpenseID = rdr.GetInt32(3);
+                budgetItem.ShortDescription = rdr.GetString(5);
+                budgetItem.Date = DateTime.ParseExact(rdr.GetString(4), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                budgetItem.Amount = rdr.GetDouble(6);
+                budgetItem.Category = rdr.GetString(1);
+                budgetItem.Balance = total;
+                items.Add(budgetItem);
 
+            }
             return items;
         }
 
@@ -171,6 +161,8 @@ namespace Budget
         /// <returns>A list of budget items </returns>
         public List<BudgetItemsByMonth> GetBudgetItemsByMonth(DateTime? Start, DateTime? End, bool FilterFlag, int CategoryID)
         {
+            DateTime realStart = Start ?? new DateTime(1900, 1, 1);
+            DateTime realEnd = End ?? new DateTime(2500, 1, 1);
             // -----------------------------------------------------------------------
             // get all items first
             // -----------------------------------------------------------------------
