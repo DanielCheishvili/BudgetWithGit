@@ -113,10 +113,6 @@ namespace Budget
             cmd.Parameters.AddWithValue("@realEnd", realEnd);
             cmd.Prepare();
 
-            cmd.ExecuteNonQuery();
-
-
-
             // ------------------------------------------------------------------------
             // create a BudgetItem list with totals,
             // ------------------------------------------------------------------------
@@ -163,20 +159,53 @@ namespace Budget
         {
             DateTime realStart = Start ?? new DateTime(1900, 1, 1);
             DateTime realEnd = End ?? new DateTime(2500, 1, 1);
+
+     
             // -----------------------------------------------------------------------
             // get all items first
             // -----------------------------------------------------------------------
-            List<BudgetItem> items = GetBudgetItems(Start, End, FilterFlag, CategoryID);
+            SQLiteCommand cmd = new SQLiteCommand(Database.dbConnection);
+            cmd.CommandText = @"SELECT e.Date, sum(e.Amount)
+                                FROM expenses as e 
+                                WHERE e.Date >= @realStart AND e.date <= @realEnd
+                                GROUP BY substr(e.Date, 1, 7)
+                                ORDER BY e.Date ASC";
+            cmd.Parameters.AddWithValue("@realStart", realStart);
+            cmd.Parameters.AddWithValue("@realEnd", realEnd);
+            cmd.Prepare();
+
+            
+            
+            //csharp substrin
+           
+
+            var summary = new List<BudgetItemsByMonth>();
+            SQLiteDataReader rdr = cmd.ExecuteReader();
+            
+            while(rdr.Read())
+            {
+                var br = new BudgetItemsByMonth
+                {
+                    Month = rdr.GetString(0),
+                    Total = rdr.GetDouble(1),
+                };
+
+                /*var startDate = new DateTime(br., month, 1);
+                var lastDay = DateTime.DaysInMonth(year, month);
+                var endDate = new DateTime(year, month, lastDay);*/
+                List<BudgetItem> items = GetBudgetItems(Start, End, FilterFlag, CategoryID);
+                
+            }
+
 
             // -----------------------------------------------------------------------
             // Group by year/month
-            // -----------------------------------------------------------------------
-            var GroupedByMonth = items.GroupBy(c => c.Date.Year.ToString("D4") + "-" + c.Date.Month.ToString("D2"));
+            // ----------------------------------------------------------------------
 
             // -----------------------------------------------------------------------
             // create new list
             // -----------------------------------------------------------------------
-            var summary = new List<BudgetItemsByMonth>();
+           /* var summary = new List<BudgetItemsByMonth>();
             foreach (var MonthGroup in GroupedByMonth)
             {
                 // calculate total for this month, and create list of details
@@ -195,7 +224,7 @@ namespace Budget
                     Details = details,
                     Total = total
                 });
-            }
+            }*/
 
             return summary;
         }

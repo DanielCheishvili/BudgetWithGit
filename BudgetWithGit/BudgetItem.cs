@@ -68,7 +68,7 @@ namespace Budget
         /// <summary>
         /// Gets and sets the details.
         /// </summary>
-        public List<BudgetItem> Details { get; set; }
+        public List<BudgetItem> Details { get; set; } // list of expenses for that month.
 
         /// <summary>
         /// Gets and sets the total.
