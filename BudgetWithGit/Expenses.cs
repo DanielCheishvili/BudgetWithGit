@@ -113,7 +113,7 @@ namespace Budget
         /// <returns></returns>
         public Expense GetExpenseFromId(int i )
         {
-            string selectID = $"SELECT * FROM expenses WHERE id = @id";
+            string selectID = $"SELECT id,Date, Amount,Description,CategoryId FROM expenses WHERE id = @id";
             SQLiteCommand cmd = new SQLiteCommand(selectID, this.dbConnection);
             cmd.Parameters.AddWithValue("@id", i);
             cmd.Prepare();
@@ -144,11 +144,12 @@ namespace Budget
             expUpdate.Description = newDescription;
 
             SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
-            cmd.CommandText = "UPDATE expenses SET Date = @date, Category = @cat, Amount = @amt, Description = @desc where id = @id";
-            cmd.Parameters.AddWithValue("@date", expUpdate.Date);
+            cmd.CommandText = "UPDATE expenses SET Date = @date, CategoryId = @cat, Amount = @amt, Description = @desc where id = @id";
+            cmd.Parameters.AddWithValue("@date", expUpdate.Date.ToString("yyyy-MM-dd"));
             cmd.Parameters.AddWithValue("@cat", expUpdate.Category);
-            cmd.Parameters.AddWithValue("@amt", expUpdate.Amount);
+            cmd.Parameters.AddWithValue("@amt", (double)expUpdate.Amount);
             cmd.Parameters.AddWithValue("@desc", expUpdate.Description);
+            cmd.Parameters.AddWithValue("@id", expUpdate.Id);
             cmd.Prepare();
             cmd.ExecuteNonQuery();
             return expUpdate;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using Budget;
 using System.Data.SQLite;
+using System.Globalization;
 
 namespace Budget
 {
@@ -151,7 +152,7 @@ namespace Budget
 
         }
         [TestMethod]
-        public void ExpensesMethod_GetCategoryFromId()
+        public void ExpensesMethod_GetExpenseFromId()
         {
             // Arrange
             String folder = TestConstants.GetSolutionDir();
@@ -159,38 +160,50 @@ namespace Budget
             Database.openExistingDatabase(newDB);
             SQLiteConnection conn = Database.dbConnection;
             Expenses expenses = new Expenses(conn);
-            int expID = 15;
+            int expID = 1;
 
             // Act
             Expense expense = expenses.GetExpenseFromId(expID);
 
             // Assert
             Assert.AreEqual(expID, expense.Id);
+
             Database.CloseDatabaseAndReleaseFile();
 
         }
 
         [TestMethod]
-        public void ExpensesMethod_UpdateCategory()
+        public void ExpensesMethod_UpdateExpense()
         {
             // Arrange
             String folder = TestConstants.GetSolutionDir();
             String newDB = $"{folder}\\newDB.db";
             Database.newDatabase(newDB);
             SQLiteConnection conn = Database.dbConnection;
+            Categories cats = new Categories(conn, false);
+
+            String catDesc = "Category";
+            Category.CategoryType type = Category.CategoryType.Savings;
+            cats.Add(catDesc, type);
+
             Expenses expenses = new Expenses(conn);
-            
+            expenses.Add(DateTime.ParseExact("2020-01-01", "yyyy-MM-dd", CultureInfo.InvariantCulture), 1, 1000, "hat");
             int cat = 1;
-            Double amt = 98.3;
-            String newDescr = "Presents";
-            int id = 11;
+            DateTime dateTime = DateTime.ParseExact("2020-11-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            Double amt = 12;
+            String newDescr = "clothes";
+            int id = 1;
 
             // Act
-            expenses.UpdateProperties(id, DateTime.Now, cat,amt,newDescr );
+            expenses.UpdateProperties(id, dateTime, cat,amt,newDescr );
             Expense expense = expenses.GetExpenseFromId(id);
 
             // Assert 
+            Assert.AreEqual(dateTime, expense.Date);
+            Assert.AreEqual(cat, expense.Category);
+            Assert.AreEqual(amt, expense.Amount);
             Assert.AreEqual(newDescr, expense.Description);
+
             Database.CloseDatabaseAndReleaseFile();
 
         }
