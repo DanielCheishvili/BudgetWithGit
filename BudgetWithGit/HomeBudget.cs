@@ -24,8 +24,7 @@ namespace Budget
     // ====================================================================
 
     /// <summary>
-    /// Combines categories class and expenses class. The file verfication will be used from 
-    /// the BudgetFile.cs class.
+    /// Combines categories class and expenses class.
     /// <see href="Budget.Categories.html"/>
     /// <see href="Budget.Expenses.html"/>
     /// </summary>
@@ -52,8 +51,6 @@ namespace Budget
         private Categories _categories;
         private Expenses _expenses;
 
-        // Properties (categories and expenses object)
-
         /// <summary>
         /// Gets the categories.
         /// </summary>
@@ -64,8 +61,16 @@ namespace Budget
         /// </summary>
         public Expenses expenses { get { return _expenses; } }
 
+        /// <summary>
+        /// The only constructor of the HomeBudget class that connects
+        /// to a database.Checks if the file exists and wether or not we opening a new database
+        /// or using an existing one.
+        /// </summary>
+        /// <param name="databaseFile">The database file</param>
+        /// <param name="newDB">The boolean that checks if its a new database or not</param>
         public HomeBudget(String databaseFile,bool newDB = false)
         {
+            //checks if the file exits and if its an existing database.
             if (!newDB && File.Exists(databaseFile))
             {
                 Database.openExistingDatabase(databaseFile);
@@ -85,8 +90,7 @@ namespace Budget
 
         /// <summary>
         /// Gets all expenses list. It joins the categories list with 
-        /// the expenses list. It shows the budget in a negative format since paying expenses
-        /// will deduct money.
+        /// the expenses list using an Inner Join query. 
         /// </summary>
         /// 
         /// <param name="Start">The start date</param>

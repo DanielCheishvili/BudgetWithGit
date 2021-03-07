@@ -150,6 +150,50 @@ namespace Budget
             Database.CloseDatabaseAndReleaseFile();
 
         }
+        [TestMethod]
+        public void ExpensesMethod_GetCategoryFromId()
+        {
+            // Arrange
+            String folder = TestConstants.GetSolutionDir();
+            String newDB = $"{folder}\\{TestConstants.testDBInputFile}";
+            Database.openExistingDatabase(newDB);
+            SQLiteConnection conn = Database.dbConnection;
+            Expenses expenses = new Expenses(conn);
+            int expID = 15;
+
+            // Act
+            Expense expense = expenses.GetExpenseFromId(expID);
+
+            // Assert
+            Assert.AreEqual(expID, expense.Id);
+            Database.CloseDatabaseAndReleaseFile();
+
+        }
+
+        [TestMethod]
+        public void ExpensesMethod_UpdateCategory()
+        {
+            // Arrange
+            String folder = TestConstants.GetSolutionDir();
+            String newDB = $"{folder}\\newDB.db";
+            Database.newDatabase(newDB);
+            SQLiteConnection conn = Database.dbConnection;
+            Expenses expenses = new Expenses(conn);
+            
+            int cat = 1;
+            Double amt = 98.3;
+            String newDescr = "Presents";
+            int id = 11;
+
+            // Act
+            expenses.UpdateProperties(id, DateTime.Now, cat,amt,newDescr );
+            Expense expense = expenses.GetExpenseFromId(id);
+
+            // Assert 
+            Assert.AreEqual(newDescr, expense.Description);
+            Database.CloseDatabaseAndReleaseFile();
+
+        }
     }
 }
 

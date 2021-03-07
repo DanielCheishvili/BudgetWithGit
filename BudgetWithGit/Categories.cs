@@ -19,24 +19,19 @@ namespace Budget
     // ====================================================================
 
     /// <summary>
-    /// A collection of category items that also reads / write to a file 
-    /// and saves a file as well as removing and adding categories. For files it uses
-    /// the BudgetFiles.cs in order to save and write to file.
+    /// A collection of category items that saves and reads from a database file.
+    /// as well as removing and adding categories. 
     /// </summary>
     public class Categories
     {
 
         private SQLiteConnection dbConnection;
 
-        
         /// <summary>
-        /// Consturctor that calls a function that sets the categories to default
+        ///Constructor that sets the categories to default if its a new database;
         /// </summary>
-        public Categories()
-        {
-            SetCategoriesToDefaults();
-        }
-
+        /// <param name="conn">The database connection</param>
+        /// <param name="newDb">The boolean that checks if its a new database</param>
         public Categories(SQLiteConnection conn, bool newDb)
         {
             this.dbConnection = conn;
@@ -47,6 +42,14 @@ namespace Budget
             //open connection
             
         }
+
+        /// <summary>
+        /// Updates the properties of the categories table using SQL queries.Id is not updated
+        /// </summary>
+        /// <param name="id">The id of the category</param>
+        /// <param name="newDescr">The description of the category</param>
+        /// <param name="type">The type of the cateogry</param>
+        /// <returns>The updated categories table</returns>
         public Category UpdateProperties(int id, string newDescr, Category.CategoryType type)
         {
             Category catUpdate = GetCategoryFromId(id);
@@ -65,10 +68,8 @@ namespace Budget
         }
 
         /// <summary>
-        /// Finds a specific category from the list where the id is the one that is specified.
+        /// Finds a specific category from the table where the id is the one that is specified using SQL queries.
         /// </summary>
-        /// 
-        /// <exception cref="Exception">Throws if the category is empty.</exception>
         /// 
         /// <param name="i">The specified ID</param>
         /// 
@@ -126,7 +127,7 @@ namespace Budget
         }
 
         /// <summary>
-        /// Adds categories to the category list.
+        /// Adds categories to the categories table..
         /// </summary>
         /// 
         /// <param name="desc">The Desciption of the category</param>
@@ -151,7 +152,7 @@ namespace Budget
         }
 
         /// <summary>
-        /// Deletes the category from the category list.
+        /// Deletes the category from the category table.
         /// </summary>
         /// <param name="Id">The id of the category</param>
         public void Delete(int Id)
@@ -175,8 +176,7 @@ namespace Budget
         }
 
         /// <summary>
-        /// Adds the new categories to the list.
-        /// makes a new copy of list, so user cannot modify what is part of this instance.
+        /// Retrieves all the columns of the categories table.
         /// </summary>
         /// 
         /// <returns>The list of categories</returns>
