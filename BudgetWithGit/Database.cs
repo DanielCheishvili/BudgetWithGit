@@ -4,10 +4,17 @@ using System.IO;
 
 namespace Budget
 {
+    /// <summary>
+    /// The database class that sets up the entire database.
+    /// </summary>
     public class Database
     {
         public static SQLiteConnection dbConnection;
 
+        /// <summary>
+        /// Creates all the tables for this database.
+        /// </summary>
+        /// <param name="path">The file path of the database file</param>
         public static void newDatabase(String path)
         {
             string cs = $"Data Source={path}; Foreign Keys=1";
@@ -44,6 +51,13 @@ namespace Budget
             cmd.CommandText = @"CREATE TABLE expenses (Id INTEGER PRIMARY KEY, Date TEXT, Description TEXT, Amount DOUBLE, CategoryId INTEGER REFERENCES categories(Id))";
             cmd.ExecuteNonQuery();
         }
+        /// <summary>
+        ///  Opens an existing database file if the file exits
+        ///  
+        ///
+        /// </summary>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <param name="path">The file path to the database file.</param>
         public static void openExistingDatabase(String path)
         {
             if(File.Exists(path))
@@ -60,6 +74,9 @@ namespace Budget
 
 
         }
+        /// <summary>
+        /// Closes the database.
+        /// </summary>
         static public void CloseDatabaseAndReleaseFile()
         {
             if (Database.dbConnection != null)

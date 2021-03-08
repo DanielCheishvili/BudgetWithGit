@@ -16,17 +16,18 @@ using System.Globalization;
 namespace Budget
 {
     /// <summary>
-    /// A collection of exepnses items that also reads / write to a file 
-    /// and saves a file as well as removing and adding exenses. For files, it uses
-    /// the BudgetFiles.cs in order to save and write to file.
-    /// </summary>
+    /// A collection of expense items that saves and reads from a database file.
+    /// as well as removing and adding expenses. 
+    /// </summary
+
     public class Expenses
     {
-        //private static String DefaultFileName = "budget.txt";
-        private List<Expense> _Expenses = new List<Expense>();
-        private string _FileName;
-        private string _DirName;
+ 
         private SQLiteConnection dbConnection;
+        /// <summary>
+        ///Constructor checks if the database is on.
+        /// </summary>
+        /// <param name="conn">The database connection</param>
         public Expenses(SQLiteConnection conn)
         {
             if(conn == null)
@@ -38,107 +39,8 @@ namespace Budget
 
         }
 
-
         /// <summary>
-        /// Gets the filename.
-        /// </summary>
-        public String FileName { get { return _FileName; } }
-
-        /// <summary>
-        /// Gets the directory name.
-        /// </summary>
-        public String DirName { get { return _DirName; } }
-
-        /// <summary>
-        /// populate exepnses from a file. Resets the current expenses.
-        /// </summary>
-        /// 
-        /// <param name="filepath"> A file path that the user will specifiy but originally set to null</param>
-        public void ReadFromFile(String filepath = null)
-        {
-
-            // ---------------------------------------------------------------
-            // reading from file resets all the current expenses,
-            // so clear out any old definitions
-            // ---------------------------------------------------------------
-            _Expenses.Clear();
-
-            // ---------------------------------------------------------------
-            // reset default dir/filename to null 
-            // ... filepath may not be valid, 
-            // ---------------------------------------------------------------
-            _DirName = null;
-            _FileName = null;
-
-            // ---------------------------------------------------------------
-            // get filepath name (throws exception if it doesn't exist)
-            // ---------------------------------------------------------------
-            filepath = BudgetFiles.VerifyReadFromFileName(filepath/*, DefaultFileName*/);
-
-            // ---------------------------------------------------------------
-            // read the expenses from the xml file
-            // ---------------------------------------------------------------
-            _ReadXMLFile(filepath);
-
-            // ----------------------------------------------------------------
-            // save filename info for later use?
-            // ----------------------------------------------------------------
-            _DirName = Path.GetDirectoryName(filepath);
-            _FileName = Path.GetFileName(filepath);
-
-
-        }
-
-        /// <summary>
-        /// save to a file. saves the file in an XML format.
-        /// </summary>
-        /// 
-        /// <param name="filepath">A file path that the user will specifiy but originally set to null</param>
-        public void SaveToFile(String filepath = null)
-        {
-            // ---------------------------------------------------------------
-            // if file path not specified, set to last read file
-            // ---------------------------------------------------------------
-            if (filepath == null && DirName != null && FileName != null)
-            {
-                filepath = DirName + "\\" + FileName;
-            }
-
-            // ---------------------------------------------------------------
-            // just in case filepath doesn't exist, reset path info
-            // ---------------------------------------------------------------
-            _DirName = null;
-            _FileName = null;
-
-            // ---------------------------------------------------------------
-            // get filepath name (throws exception if it doesn't exist)
-            // ---------------------------------------------------------------
-            filepath = BudgetFiles.VerifyWriteToFileName(filepath/*, DefaultFileName*/);
-
-            // ---------------------------------------------------------------
-            // save as XML
-            // ---------------------------------------------------------------
-            _WriteXMLFile(filepath);
-
-            // ----------------------------------------------------------------
-            // save filename info for later use
-            // ----------------------------------------------------------------
-            _DirName = Path.GetDirectoryName(filepath);
-            _FileName = Path.GetFileName(filepath);
-        }
-
-
-
-        // ====================================================================
-        // Add expense
-        // ====================================================================
-        private void Add(Expense exp)
-        {
-            _Expenses.Add(exp);
-        }
-
-        /// <summary>
-        /// Adds expenses to the exepnses list.
+        /// Adds expenses to the exepnses table.
         /// </summary>
         /// 
         /// <param name="date">Date due of the expense</param>
@@ -160,7 +62,7 @@ namespace Budget
         }
 
         /// <summary>
-        /// Deletes the expanses from the exepenses list.
+        /// Deletes the expanses from the exepenses table.
         /// </summary>
         /// <param name="Id">Id of the existing expense</param>
         public void Delete(int Id)
@@ -183,11 +85,11 @@ namespace Budget
 
         }
 
-       /// <summary>
-       /// Adds the expenses to the list of expenses.
-       /// </summary>
-       /// 
-       /// <returns>The list of expenses</returns>
+        /// <summary>
+        /// Retrieves all the columns of the expenses table.
+        /// </summary>
+        /// 
+        /// <returns>The list of expenses</returns>
         public List<Expense> List()
         {
             string selectCategory = "select * from expenses ORDER BY id ASC;";
@@ -204,119 +106,53 @@ namespace Budget
             
             return newList;
         }
-
-
-        // ====================================================================
-        // read from an XML file and add categories to our categories list
-        // ====================================================================
-        private void _ReadXMLFile(String filepath)
+        /// <summary>
+        /// Finds a specific expense from the table where the id is the one that is specified using SQL queries.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public Expense GetExpenseFromId(int i )
         {
+            string selectID = $"SELECT id,Date, Amount,Description,CategoryId FROM expenses WHERE id = @id";
+            SQLiteCommand cmd = new SQLiteCommand(selectID, this.dbConnection);
+            cmd.Parameters.AddWithValue("@id", i);
+            cmd.Prepare();
 
+            SQLiteDataReader rdr = cmd.ExecuteReader();
+            rdr.Read();
+            Expense expense = new Expense(rdr.GetInt32(0), DateTime.ParseExact(rdr.GetString(1), "yyyy-MM-dd", CultureInfo.InvariantCulture), rdr.GetInt32(4), rdr.GetDouble(2), rdr.GetString(3));
+            rdr.Close();
 
-            try
-            {
-                XmlDocument doc = new XmlDocument();
-                doc.Load(filepath);
-
-                // Loop over each Expense
-                foreach (XmlNode expense in doc.DocumentElement.ChildNodes)
-                {
-                    // set default expense parameters
-                    int id = int.Parse((((XmlElement)expense).GetAttributeNode("ID")).InnerText);
-                    String description = "";
-                    DateTime date = DateTime.Parse("2000-01-01");
-                    int category = 0;
-                    Double amount = 0.0;
-
-                    // get expense parameters
-                    foreach (XmlNode info in expense.ChildNodes)
-                    {
-                        switch (info.Name)
-                        {
-                            case "Date":
-                                date = DateTime.Parse(info.InnerText);
-                                break;
-                            case "Amount":
-                                amount = Double.Parse(info.InnerText);
-                                break;
-                            case "Description":
-                                description = info.InnerText;
-                                break;
-                            case "Category":
-                                category = int.Parse(info.InnerText);
-                                break;
-                        }
-                    }
-
-                    // have all info for expense, so create new one
-                    this.Add(new Expense(id, date, category, amount, description));
-
-                }
-
-            }
-            catch (Exception e)
-            {
-                throw new Exception("ReadFromFileException: Reading XML " + e.Message);
-            }
+            return expense;
         }
 
-
-        // ====================================================================
-        // write to an XML file
-        // if filepath is not specified, read/save in AppData file
-        // ====================================================================
-        private void _WriteXMLFile(String filepath)
+        /// <summary>
+        /// Updates the properties of the expenes table using SQL queries.Id is not updated
+        /// </summary>
+        /// <param name="id">The id of the expense</param>
+        /// <param name="newDate">The date to be updated</param>
+        /// <param name="newCategory">The category to be updated</param>
+        /// <param name="newAmount">The amount to be updated</param>
+        /// <param name="newDescription">The description to be updated</param>
+        /// <returns>The updated expenses table</returns>
+        public Expense UpdateProperties(int id, DateTime newDate, int newCategory, Double newAmount, String newDescription)
         {
-            // ---------------------------------------------------------------
-            // loop over all categories and write them out as XML
-            // ---------------------------------------------------------------
-            try
-            {
-                // create top level element of expenses
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml("<Expenses></Expenses>");
+            Expense expUpdate = GetExpenseFromId(id);
+            expUpdate.Date = newDate;
+            expUpdate.Category = newCategory;
+            expUpdate.Amount = newAmount;
+            expUpdate.Description = newDescription;
 
-                // foreach Category, create an new xml element
-                foreach (Expense exp in _Expenses)
-                {
-                    // main element 'Expense' with attribute ID
-                    XmlElement ele = doc.CreateElement("Expense");
-                    XmlAttribute attr = doc.CreateAttribute("ID");
-                    attr.Value = exp.Id.ToString();
-                    ele.SetAttributeNode(attr);
-                    doc.DocumentElement.AppendChild(ele);
-
-                    // child attributes (date, description, amount, category)
-                    XmlElement d = doc.CreateElement("Date");
-                    XmlText dText = doc.CreateTextNode(exp.Date.ToString());
-                    ele.AppendChild(d);
-                    d.AppendChild(dText);
-
-                    XmlElement de = doc.CreateElement("Description");
-                    XmlText deText = doc.CreateTextNode(exp.Description);
-                    ele.AppendChild(de);
-                    de.AppendChild(deText);
-
-                    XmlElement a = doc.CreateElement("Amount");
-                    XmlText aText = doc.CreateTextNode(exp.Amount.ToString());
-                    ele.AppendChild(a);
-                    a.AppendChild(aText);
-
-                    XmlElement c = doc.CreateElement("Category");
-                    XmlText cText = doc.CreateTextNode(exp.Category.ToString());
-                    ele.AppendChild(c);
-                    c.AppendChild(cText);
-
-                }
-
-                // write the xml to FilePath
-                doc.Save(filepath);
-
-            }
-            catch (Exception e)
-            {
-                throw new Exception("SaveToFileException: Reading XML " + e.Message);
-            }
+            SQLiteCommand cmd = new SQLiteCommand(this.dbConnection);
+            cmd.CommandText = "UPDATE expenses SET Date = @date, CategoryId = @cat, Amount = @amt, Description = @desc where id = @id";
+            cmd.Parameters.AddWithValue("@date", expUpdate.Date.ToString("yyyy-MM-dd"));
+            cmd.Parameters.AddWithValue("@cat", expUpdate.Category);
+            cmd.Parameters.AddWithValue("@amt", (double)expUpdate.Amount);
+            cmd.Parameters.AddWithValue("@desc", expUpdate.Description);
+            cmd.Parameters.AddWithValue("@id", expUpdate.Id);
+            cmd.Prepare();
+            cmd.ExecuteNonQuery();
+            return expUpdate;
         }
 
     }

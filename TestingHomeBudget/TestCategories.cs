@@ -277,39 +277,6 @@ namespace Budget
 
         }
 
-
-
-
-        // -------------------------------------------------------
-        // helpful functions, ... they are not tests
-        // -------------------------------------------------------
-
-        private String GetSolutionDir()
-        {
-
-            // this is valid for C# .Net Foundation (not for C# .Net Core)
-            return Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\"));
-        }
-
-        // source taken from: https://www.dotnetperls.com/file-equals
-
-        private bool FileEquals(string path1, string path2)
-        {
-            byte[] file1 = File.ReadAllBytes(path1);
-            byte[] file2 = File.ReadAllBytes(path2);
-            if (file1.Length == file2.Length)
-            {
-                for (int i = 0; i < file1.Length; i++)
-                {
-                    if (file1[i] != file2[i])
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
     }
 }
 

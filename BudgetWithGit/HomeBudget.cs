@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Dynamic;
 using System.Data.SQLite;
+using System.Globalization;
 
 // ============================================================================
 // (c) Sandy Bultena 2018
@@ -23,8 +24,7 @@ namespace Budget
     // ====================================================================
 
     /// <summary>
-    /// Combines categories class and expenses class. The file verfication will be used from 
-    /// the BudgetFile.cs class.
+    /// Combines categories class and expenses class.
     /// <see href="Budget.Categories.html"/>
     /// <see href="Budget.Expenses.html"/>
     /// </summary>
@@ -48,47 +48,8 @@ namespace Budget
 
     public class HomeBudget
     {
-        private string _FileName;
-        private string _DirName;
         private Categories _categories;
         private Expenses _expenses;
-
-        // ====================================================================
-        // Properties
-        // ===================================================================
-
-        // Properties (location of files etc)
-
-        /// <summary>
-        /// Gets the filename.
-        /// </summary>
-        public String FileName { get { return _FileName; } }
-
-        /// <summary>
-        /// Gets the directory name.
-        /// </summary>
-        public String DirName { get { return _DirName; } }
-
-        /// <summary>
-        /// The public propery that returns the full path if a valid file name and directory name specified.
-        /// Otherwise it returns a null file path which will use the default file path.
-        /// </summary>
-        public String PathName
-        {
-            get
-            {
-                if (_FileName != null && _DirName != null)
-                {
-                    return Path.GetFullPath(_DirName + "\\" + _FileName);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        // Properties (categories and expenses object)
 
         /// <summary>
         /// Gets the categories.
@@ -101,15 +62,15 @@ namespace Budget
         public Expenses expenses { get { return _expenses; } }
 
         /// <summary>
-        /// constructor with default categories with no expenses.
+        /// The only constructor of the HomeBudget class that connects
+        /// to a database.Checks if the file exists and wether or not we opening a new database
+        /// or using an existing one.
         /// </summary>
-       /* public HomeBudget()
-        {
-            _categories = new Categories();
-            _expenses = new Expenses();
-        }*/
+        /// <param name="databaseFile">The database file</param>
+        /// <param name="newDB">The boolean that checks if its a new database or not</param>
         public HomeBudget(String databaseFile,bool newDB = false)
         {
+            //checks if the file exits and if its an existing database.
             if (!newDB && File.Exists(databaseFile))
             {
                 Database.openExistingDatabase(databaseFile);
@@ -122,23 +83,14 @@ namespace Budget
 
             _categories = new Categories(Database.dbConnection, newDB);
             _expenses = new Expenses(Database.dbConnection);
-            // read the expenses from the xml file
+            
             
         }
-
-        /// <summary>
-        /// Constructor with an existing budget.
-        /// </summary>
-        /// 
-        /// <param name="budgetFileName">The file name of the budget items.</param>
-       
-
         #region GetList
 
         /// <summary>
         /// Gets all expenses list. It joins the categories list with 
-        /// the expenses list. It shows the budget in a negative format since paying expenses
-        /// will deduct money.
+        /// the expenses list using an Inner Join query. 
         /// </summary>
         /// 
         /// <param name="Start">The start date</param>
@@ -152,42 +104,47 @@ namespace Budget
             // ------------------------------------------------------------------------
             // return joined list within time frame
             // ------------------------------------------------------------------------
-            Start = Start ?? new DateTime(1900, 1, 1);
-            End = End ?? new DateTime(2500, 1, 1);
+            DateTime realStart = Start ?? new DateTime(1900, 1, 1);
+            DateTime realEnd = End ?? new DateTime(2500, 1, 1);
 
-            var query =  from c in _categories.List()
-                        join e in _expenses.List() on c.Id equals e.Category
-                        where e.Date >= Start && e.Date <= End
-                        select new { CatId = c.Id, ExpId = e.Id, e.Date, Category = c.Description, e.Description, e.Amount };
+            SQLiteCommand cmd = new SQLiteCommand(Database.dbConnection);
+            cmd.CommandText = @"SELECT c.Id, c.Description, c.TypeId, e.Id, e.Date, e.Description, e.Amount
+                                from categories as c 
+                                INNER JOIN expenses as e on c.id == e.CategoryId 
+                                WHERE e.Date >= @realStart AND e.date <= @realEnd
+                                ORDER BY e.Date ASC";
+            cmd.Parameters.AddWithValue("@realStart", realStart);
+            cmd.Parameters.AddWithValue("@realEnd", realEnd);
+            cmd.Prepare();
 
             // ------------------------------------------------------------------------
             // create a BudgetItem list with totals,
             // ------------------------------------------------------------------------
             List<BudgetItem> items = new List<BudgetItem>();
             Double total = 0;
+            SQLiteDataReader rdr = cmd.ExecuteReader();
 
-            foreach (var e in query.OrderBy(q => q.Date))
+            while(rdr.Read())
             {
                 // filter out unwanted categories if filter flag is on
-                if (FilterFlag && CategoryID != e.CatId)
+                if (FilterFlag && CategoryID != rdr.GetInt32(0))
                 {
                     continue;
                 }
+                BudgetItem budgetItem = new BudgetItem();
 
                 // keep track of running totals
-                total = total + e.Amount;
-                items.Add(new BudgetItem
-                {
-                    CategoryID = e.CatId,
-                    ExpenseID = e.ExpId,
-                    ShortDescription = e.Description,
-                    Date = e.Date,
-                    Amount = e.Amount,
-                    Category = e.Category,
-                    Balance = total
-                });
-            }
+                total += rdr.GetDouble(6);
+                budgetItem.CategoryID = rdr.GetInt32(0);
+                budgetItem.ExpenseID = rdr.GetInt32(3);
+                budgetItem.ShortDescription = rdr.GetString(5);
+                budgetItem.Date = DateTime.ParseExact(rdr.GetString(4), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                budgetItem.Amount = rdr.GetDouble(6);
+                budgetItem.Category = rdr.GetString(1);
+                budgetItem.Balance = total;
+                items.Add(budgetItem);
 
+            }
             return items;
         }
 
@@ -239,6 +196,7 @@ namespace Budget
             }
 
             return summary;
+
         }
 
         /// <summary>

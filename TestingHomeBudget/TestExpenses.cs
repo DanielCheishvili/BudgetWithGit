@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using Budget;
 using System.Data.SQLite;
+using System.Globalization;
 
 namespace Budget
 {
@@ -11,42 +12,8 @@ namespace Budget
     public class TestExpenses
     {
         int numberOfExpensesInFile = TestConstants.numberOfExpensesInFile;
-        String testInputFile = TestConstants.testExpensesInputFile;
         int maxIDInExpenseFile = TestConstants.maxIDInExpenseFile;
-        Expense firstExpenseInFile = new Expense(1, new DateTime(2021, 1, 10), 10, 12, "hat (on credit)");
 
-
-        // ========================================================================
-
-        [TestMethod]
-        public void ExpensesObject_New()
-        {
-            // Arrange
-            String folder = TestConstants.GetSolutionDir();
-            String newDB = $"{folder}\\newDB.db";
-            Database.newDatabase(newDB);
-            SQLiteConnection conn = Database.dbConnection;
-            // Act
-            Expenses expenses = new Expenses(conn);
-
-            // Assert 
-            Assert.IsInstanceOfType(expenses, typeof(Expenses));
-
-            Assert.IsTrue(typeof(Expenses).GetProperty("FileName").CanWrite == false);
-            Assert.IsTrue(typeof(Expenses).GetProperty("DirName").CanWrite == false);
-            Database.CloseDatabaseAndReleaseFile();
-
-
-        }
-
-
-        // ========================================================================
-
-        
-       
-        // ========================================================================
-
-    
 
         [TestMethod]
         public void ExpensesMethod_List_ReturnsListOfExpenses()
@@ -184,36 +151,61 @@ namespace Budget
             Database.CloseDatabaseAndReleaseFile();
 
         }
+        [TestMethod]
+        public void ExpensesMethod_GetExpenseFromId()
+        {
+            // Arrange
+            String folder = TestConstants.GetSolutionDir();
+            String newDB = $"{folder}\\{TestConstants.testDBInputFile}";
+            Database.openExistingDatabase(newDB);
+            SQLiteConnection conn = Database.dbConnection;
+            Expenses expenses = new Expenses(conn);
+            int expID = 1;
 
+            // Act
+            Expense expense = expenses.GetExpenseFromId(expID);
 
-        // -------------------------------------------------------
-        // helpful functions, ... they are not tests
-        // -------------------------------------------------------
+            // Assert
+            Assert.AreEqual(expID, expense.Id);
 
-        private String GetSolutionDir() {
+            Database.CloseDatabaseAndReleaseFile();
 
-            // this is valid for C# .Net Foundation (not for C# .Net Core)
-            return Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\"));
         }
 
-        // source taken from: https://www.dotnetperls.com/file-equals
-
-        private bool FileEquals(string path1, string path2)
+        [TestMethod]
+        public void ExpensesMethod_UpdateExpense()
         {
-            byte[] file1 = File.ReadAllBytes(path1);
-            byte[] file2 = File.ReadAllBytes(path2);
-            if (file1.Length == file2.Length)
-            {
-                for (int i = 0; i < file1.Length; i++)
-                {
-                    if (file1[i] != file2[i])
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
+            // Arrange
+            String folder = TestConstants.GetSolutionDir();
+            String newDB = $"{folder}\\newDB.db";
+            Database.newDatabase(newDB);
+            SQLiteConnection conn = Database.dbConnection;
+            Categories cats = new Categories(conn, false);
+
+            String catDesc = "Category";
+            Category.CategoryType type = Category.CategoryType.Savings;
+            cats.Add(catDesc, type);
+
+            Expenses expenses = new Expenses(conn);
+            expenses.Add(DateTime.ParseExact("2020-01-01", "yyyy-MM-dd", CultureInfo.InvariantCulture), 1, 1000, "hat");
+            int cat = 1;
+            DateTime dateTime = DateTime.ParseExact("2020-11-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            Double amt = 12;
+            String newDescr = "clothes";
+            int id = 1;
+
+            // Act
+            expenses.UpdateProperties(id, dateTime, cat,amt,newDescr );
+            Expense expense = expenses.GetExpenseFromId(id);
+
+            // Assert 
+            Assert.AreEqual(dateTime, expense.Date);
+            Assert.AreEqual(cat, expense.Category);
+            Assert.AreEqual(amt, expense.Amount);
+            Assert.AreEqual(newDescr, expense.Description);
+
+            Database.CloseDatabaseAndReleaseFile();
+
         }
     }
 }
