@@ -92,7 +92,7 @@ namespace Budget
         /// <returns>The list of expenses</returns>
         public List<Expense> List()
         {
-            string selectCategory = "select * from expenses ORDER BY id ASC;";
+            string selectCategory = "select Id, Date, Amount, Description, CategoryId from expenses ORDER BY id ASC;";
 
 
             SQLiteCommand cmd = new SQLiteCommand(selectCategory, this.dbConnection);
