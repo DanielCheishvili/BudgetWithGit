@@ -92,7 +92,7 @@ namespace Budget
         /// <returns>The list of expenses</returns>
         public List<Expense> List()
         {
-            string selectCategory = "select * from expenses ORDER BY id ASC;";
+            string selectCategory = "select Id, Date, Amount, Description, CategoryId from expenses ORDER BY id ASC;";
 
 
             SQLiteCommand cmd = new SQLiteCommand(selectCategory, this.dbConnection);
@@ -147,7 +147,7 @@ namespace Budget
             cmd.CommandText = "UPDATE expenses SET Date = @date, CategoryId = @cat, Amount = @amt, Description = @desc where id = @id";
             cmd.Parameters.AddWithValue("@date", expUpdate.Date.ToString("yyyy-MM-dd"));
             cmd.Parameters.AddWithValue("@cat", expUpdate.Category);
-            cmd.Parameters.AddWithValue("@amt", (double)expUpdate.Amount);
+            cmd.Parameters.AddWithValue("@amt", expUpdate.Amount);
             cmd.Parameters.AddWithValue("@desc", expUpdate.Description);
             cmd.Parameters.AddWithValue("@id", expUpdate.Id);
             cmd.Prepare();
