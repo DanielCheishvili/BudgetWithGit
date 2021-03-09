@@ -151,6 +151,7 @@ namespace Budget
         /// <summary>
         /// Group all expenses month by month. Groups by month and year and creates a new list to store it in.
         /// Calculates the total of the month and creates a list of details. Adds it to the created list.
+        /// uses the query from the getBudgetItems therefore no need to reuse the code.
         /// </summary>
         /// 
         /// <param name="Start">The start date </param>
@@ -201,6 +202,7 @@ namespace Budget
 
         /// <summary>
         /// Group all expenses by category. Creats a new list that will hold the grouped categoires.
+        /// uses the query from the getBudgetItems therefore no need to reuse the code.
         /// </summary>
         /// 
         /// <param name="Start">The start date </param>

@@ -147,7 +147,7 @@ namespace Budget
             cmd.CommandText = "UPDATE expenses SET Date = @date, CategoryId = @cat, Amount = @amt, Description = @desc where id = @id";
             cmd.Parameters.AddWithValue("@date", expUpdate.Date.ToString("yyyy-MM-dd"));
             cmd.Parameters.AddWithValue("@cat", expUpdate.Category);
-            cmd.Parameters.AddWithValue("@amt", (double)expUpdate.Amount);
+            cmd.Parameters.AddWithValue("@amt", expUpdate.Amount);
             cmd.Parameters.AddWithValue("@desc", expUpdate.Description);
             cmd.Parameters.AddWithValue("@id", expUpdate.Id);
             cmd.Prepare();
